@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="windows-1251"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="9,00"
+	Version="9.00"
 	Name="mauk_win32"
 	ProjectGUID="{1ED43ACE-A839-462E-B8AE-E5B7DDC7F18B}"
 	RootNamespace="mauk_win32"
@@ -188,11 +188,19 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
+				RelativePath=".\Cell.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\common_func.cpp"
 				>
 			</File>
 			<File
 				RelativePath=".\generate_read_g.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\InputVectorX.cpp"
 				>
 			</File>
 			<File
@@ -209,6 +217,10 @@
 			</File>
 			<File
 				RelativePath=".\MyCStatic.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\NeuralNetSettings.cpp"
 				>
 			</File>
 			<File
@@ -258,6 +270,14 @@
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
 			<File
+				RelativePath=".\Cell.h"
+				>
+			</File>
+			<File
+				RelativePath=".\InputVectorX.h"
+				>
+			</File>
+			<File
 				RelativePath=".\mauk.h"
 				>
 			</File>
@@ -271,6 +291,10 @@
 			</File>
 			<File
 				RelativePath=".\MyCStatic.h"
+				>
+			</File>
+			<File
+				RelativePath=".\NeuralNetSettings.h"
 				>
 			</File>
 			<File
