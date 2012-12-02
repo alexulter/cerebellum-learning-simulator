@@ -1,0 +1,15 @@
+N 18000
+L 6000
+a_amp 100
+alpha_min 50
+a_period 6
+fulltime 600
+gen_snake 1
+epsilon 0.000001
+H 300
+k_liana 0.4
+k_purk 0.1
+beta 1
+sigma_init 0.8
+alph_mod 1
+sigm_reset 1

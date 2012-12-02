@@ -1,4 +1,4 @@
-// MemoryWatcherDlg.cpp : implementation file
+﻿// MemoryWatcherDlg.cpp : implementation file
 //
 
 #include "stdafx.h"
@@ -8,6 +8,8 @@
 #include "SelectProcessDlg.h"
 #include "SettingsDlg.h"
 
+//#include <windows.h>
+//#include <stdio.h>
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -19,20 +21,19 @@
 CMemoryWatcherDlg::CMemoryWatcherDlg(CWnd* pParent /*=NULL*/)
 	: CDialog(CMemoryWatcherDlg::IDD, pParent)
 {
-	m_MaxMem = 20971520; // 20 MB
-	m_NumSteps = 100;
-	m_TimeStep = 100; // 0.1 sec
+	m_MaxMem = 300; //20971520; // 20 MB
+	m_NumSteps = 200;
+	m_TimeStep = 100;//100; // 0.1 sec
 	m_ImgWidth = 1000;
 	m_ImgHeight = 400;
 	running = false;
 	m_ProcessName = GetCurrentProcessName();
-	f.open(L"log.txt");
-	f << L"# process " << m_ProcessName << "\n" << L"# step " << m_TimeStep << L"\n";
-	peak = 0;
+	//f.open(L"log.txt");
+	//f << L"# process " << m_ProcessName << "\n" << L"# step " << m_TimeStep << L"\n";
+	peak = 20;
 	peak_pagefile = 0;
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
 }
-
 void CMemoryWatcherDlg::DoDataExchange(CDataExchange* pDX)
 {
 	CDialog::DoDataExchange(pDX);
@@ -56,6 +57,13 @@ END_MESSAGE_MAP()
 
 BOOL CMemoryWatcherDlg::OnInitDialog()
 {
+	//int number = 10;
+ //   char str[256];
+ //   sprintf_s(str, "It works! - number: %d \n", number);
+ //   OutputDebugString((LPCWSTR)str);
+	//Sleep(10000);
+	//printf("OK\n");
+
 	CDialog::OnInitDialog();
 
 	// Set the icon for this dialog.  The framework does this automatically
@@ -64,14 +72,17 @@ BOOL CMemoryWatcherDlg::OnInitDialog()
 	SetIcon(m_hIcon, FALSE);		// Set small icon
 
 	// TODO: Add extra initialization here
+	purk = new Purkinje;
 	img = new CImage();
 	img->Create(m_ImgWidth, m_ImgHeight, 32);
 	SetTimer(1, m_TimeStep, NULL);
 	running = true;
 	for (UINT i = 0; i < m_NumSteps; i++)
 	{
-		points.push(0);
-		points_pagefile.push(0);
+		//points.push(0);
+		//points_pagefile.push(0);
+		points_mauk.push(0);
+		points_liana.push(0);
 	}
 	m_ProcessID = 0;
 	h = NULL;
@@ -144,18 +155,21 @@ void CMemoryWatcherDlg::DrawImage(void)
 	ReleaseDC(dc);
 	img->ReleaseDC();
 }
-
 void CMemoryWatcherDlg::OnOK(void)
 {
 	Clear();
-	f.close();
+	if (purk!=NULL) delete purk;	// удалить динамический объект
+//	purk = NULL;
+//	f.close();
 	CDialog::OnOK();
 }
 
 void CMemoryWatcherDlg::OnCancel(void)
 {
 	Clear();
-	f.close();
+	if (purk!=NULL) delete purk;	// удалить динамический объект
+//	purk = NULL;
+//	f.close();
 	CDialog::OnCancel();
 }
 
@@ -173,34 +187,37 @@ void CMemoryWatcherDlg::Clear(void)
 
 void CMemoryWatcherDlg::OnTimer(UINT_PTR nIDEvent)
 {
+
 	if (nIDEvent == 1)
 	{
-		if (!h)
+		//		SIZE_T l, total;
+		//CDC * idc = CDC::FromHandle(img->GetDC());
+		//CPen pen, * oldpen, * oldpen2, pen2, pen3;
+		//CString s;
+		//int x,y;
+
+			for (int step = 0; step<200; step++) 
+			{
+			//HANDLE hThread;
+			//unsigned threadID;
+			//hThread = (HANDLE)_beginthreadex( NULL, 0, &purk->ComputingThread, NULL, 0, &threadID );
+			//WaitForSingleObject( hThread, INFINITE );
+			//CloseHandle( hThread );
+			purk->StartThreadFunc();
+
+/*				for (int mytimevar = 0; mytimevar<50; mytimevar++) 
+			{
+				purk->timestep++;
+				purk->StepForwardOptimized();
+			}//*/
+
+			points_mauk.push(purk->PurkinjeFreqPublic/2);
+			//points_liana.push(purk->PurkinjeFreqPublic+purk->alpha_Public-200);//400e+5-purk->alpha_Public);
+			points_liana.push(purk->Liana_Public/2+10);
+		if (points_mauk.size() > m_NumSteps + 1)
 		{
-			if (m_ProcessID)
-				h = OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, FALSE, m_ProcessID);
-			else
-				h = GetCurrentProcess();
-			if (!h)
-				return;
-		}
-		PROCESS_MEMORY_COUNTERS pmc;
-		if (GetProcessMemoryInfo(h, &pmc, sizeof(pmc)))
-		{
-			points.push(pmc.WorkingSetSize);
-			points_pagefile.push(pmc.PagefileUsage);
-			peak = pmc.PeakWorkingSetSize;
-			peak_pagefile = pmc.PeakPagefileUsage;
-		}
-		else
-		{
-			points.push(0);
-			points_pagefile.push(0);
-		}
-		if (points.size() > m_NumSteps + 1)
-		{
-			points.pop();
-			points_pagefile.pop();
+			points_mauk.pop();
+			points_liana.pop();
 		}
 		SIZE_T l, total;
 		CDC * idc = CDC::FromHandle(img->GetDC());
@@ -216,78 +233,84 @@ void CMemoryWatcherDlg::OnTimer(UINT_PTR nIDEvent)
 		// drawing grid
 		pen2.CreatePen(PS_SOLID, 1, RGB(150, 150, 150));
 		oldpen2 = idc->SelectObject(&pen2);
-		for (UINT i = 0; i < points.size(); i++)
-		{
-			x = int(i * dx);
-			idc->MoveTo(x, 0);
-			idc->LineTo(x, img->GetHeight());
-		}
-		for (double i = 0.0; i < img->GetHeight(); i += img->GetHeight() / 10.0)
-		{
-			idc->MoveTo(0, int(i));
-			idc->LineTo(img->GetWidth(), int(i));
-		}
+		//for (UINT i = 0; i < points_mauk.size(); i++)
+		//{
+		//	x = int(i * dx);
+		//	idc->MoveTo(x, 0);
+		//	idc->LineTo(x, img->GetHeight());
+		//}
+		//for (double i = 0.0; i < img->GetHeight(); i += img->GetHeight() / 10.0)
+		//{
+		//	idc->MoveTo(0, int(i));
+		//	idc->LineTo(img->GetWidth(), int(i));
+		//}
 		idc->SelectObject(oldpen2);
 		// setting text color
 		idc->SetTextColor(RGB(0, 200, 0));
-		// drawing points
-		for (UINT i = 0; i < points.size(); i++)
+		// drawing points_mauk
+		for (UINT i = 0; i < points_mauk.size(); i++)
 		{
-			l = points._Get_container()[i];
+			l = points_mauk._Get_container()[i];
 			x = int(i * dx);
 			y = img->GetHeight() - int(l * dy) - 1;
 			if (!i)
 			{
-				idc->MoveTo(x, y);
+				//idc->MoveTo(x, y);
+				idc->SetPixel(x,y, RGB(150,150,150));
 			}
 			else
 			{
-				idc->LineTo(x, y);
+				//idc->LineTo(x, y);
+				idc->SetPixel(x,y, RGB(150,150,150));
 			}
-			if (i == points.size() - 1)
+			if (i == points_mauk.size() - 1)
 			{
-				s.Format(L"Memory: %u KB of %u KB, peak %u KB", l / 1024, m_MaxMem / 1024, peak / 1024);
+	//			s.Format(L"Purkinje frequency:  %u", l /100000);
+				s.Format(L"time:  %d s", purk->timestep/1000);
 				idc->TextOutW(1, 1, s);
 				total = l;
 			}
 		}
-		// drawing points_pagefile
+		// drawing points_liana
 		// setting other pen color
 		pen3.CreatePen(PS_SOLID, 3, RGB(200, 0, 0));
 		oldpen2 = idc->SelectObject(&pen3);
 		// setting text color
 		idc->SetTextColor(RGB(200, 0, 0));
-		for (UINT i = 0; i < points_pagefile.size(); i++)
+		for (UINT i = 0; i < points_liana.size(); i++)
 		{
-			l = points_pagefile._Get_container()[i];
+			l = points_liana._Get_container()[i];
 			x = int(i * dx);
 			y = img->GetHeight() - int(l * dy) - 1;
 			if (!i)
 			{
-				idc->MoveTo(x, y);
+				//idc->MoveTo(x, y);
+				idc->SetPixel(x,y, RGB(200,0,0));
 			}
 			else
 			{
-				idc->LineTo(x, y);
+				//idc->LineTo(x, y);
+				idc->SetPixel(x,y, RGB(200,0,0));
 			}
-			if (i == points_pagefile.size() - 1)
-			{
-				s.Format(L"Swap: %u KB, peak %u KB", l / 1024, peak_pagefile / 1024);
-				idc->TextOutW(1, 17, s);
-				total += l;
-			}
+//			if (i == points_liana.size() - 1)
+//			{
+//				s.Format(L"Swap: %u KB, peak %u KB", l / 1024, 2 / 1024);
+//				idc->TextOutW(1, 17, s);
+//				total += l;
+//			}
 		}
 		// setting text color
-		idc->SetTextColor(RGB(200, 200, 0));
-		s.Format(L"Total: %u KB, peak %u KB", total / 1024, (peak_pagefile + peak) / 1024);
-		idc->TextOutW(1, 33, s);
-		idc->SelectObject(oldpen2);
-		idc->SelectObject(oldpen);
+//		idc->SetTextColor(RGB(200, 200, 0));
+//		s.Format(L"Total: %u KB, peak %u KB", total / 1024, 2 / 1024);
+//		idc->TextOutW(1, 33, s);
+//		idc->SelectObject(oldpen2);
+//		idc->SelectObject(oldpen);
 		img->ReleaseDC();
 		// displaying image
 		DrawImage();
 		// saving to file
-		f << l << L"\n";
+		//f << l << L"\n";
+			}
 	}
 	CDialog::OnTimer(nIDEvent);
 }
@@ -301,7 +324,7 @@ void CMemoryWatcherDlg::OnBnClickedBtnSelect()
 		h = NULL;
 		m_ProcessID = dlg.GetSelectedProcessID();
 		m_ProcessName = dlg.GetSelectedProcessName();
-		f << L"# process " << m_ProcessName.GetBuffer() << L"\n";
+		//f << L"# process " << m_ProcessName.GetBuffer() << L"\n";
 		CString caption;
 		caption.Format(L"Memory Watcher - process %s", m_ProcessName);
 		SetWindowText(caption);
@@ -323,7 +346,7 @@ void CMemoryWatcherDlg::OnBnClickedBtnSettings()
 		m_MaxMem = dlg.m_MaxMem;
 		m_ImgHeight = dlg.m_Height;
 		m_ImgWidth = dlg.m_Width;
-		f << L"# step " << m_TimeStep << L"\n";
+		//f << L"# step " << m_TimeStep << L"\n";
 		Restart();
 	}
 }
@@ -335,12 +358,16 @@ void CMemoryWatcherDlg::Restart(void)
 	img->Create(m_ImgWidth, m_ImgHeight, 32);
 	SetTimer(1, m_TimeStep, NULL);
 	running = true;
-	while (points.size()) points.pop();
-	while (points_pagefile.size()) points_pagefile.pop();
+//	while (points.size()) points.pop();
+//	while (points_pagefile.size()) points_pagefile.pop();
+	while (points_liana.size()) points_liana.pop();
+	while (points_mauk.size()) points_mauk.pop();
 	for (UINT i = 0; i < m_NumSteps; i++)
 	{
-		points.push(0);
-		points_pagefile.push(0);
+		//points.push(0);
+		//points_pagefile.push(0);
+		points_mauk.push(0);
+		points_liana.push(0);
 	}
 	CRect R, R1;
 	m_btnSelect.GetWindowRect(&R1);

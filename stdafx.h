@@ -54,4 +54,9 @@
 #endif
 #endif
 
-
+//hide warnings about fopen()
+//#ifdef _WIN32
+////#define _CRT_SECURE_NO_DEPRECATE
+//#define _CRT_SECURE_NO_WARNINGS
+//#endif
+#include <math.h>

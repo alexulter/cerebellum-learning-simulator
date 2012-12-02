@@ -1,0 +1,470 @@
+int purkinje()//_tmain(int argc, _TCHAR* argv[])
+{
+	double** g; //PF firings vector
+	int timestep; // timestep i++ = + 1 msec
+	
+	//PF synapces weights vector
+	double* sigma, *vector_e, **eligibility_exp;
+
+	//full time fo running
+	int fulltime = 200000;//100000;//40000;
+
+	//Purkinje summation window parameter
+	double T_p = 20; //msec (while dt = 1 msec)
+	
+	double Liana_buf = 0;
+	double CSpikeTime = 0;
+
+	//initial Purkinje firing frequency
+	double Purkinje = 0;
+
+	//number of PF synapces on Purkinje cell
+	int N = 2000;//1000;
+	double epsilon = 0.000001;//0.0000001;
+	int L = 1000;//2000; //lenght of "snake-in-a-box"
+	//input_alpha(t): alpha-atm - static, alpha(timestep) - dynamic
+	//double alpha_atm = 5;
+
+	//read settings (N,L, alpha parameters) from file
+	double a_amp, a_period;
+	int gen_snake;
+
+	read_settings_file(N,L,a_amp,a_period, fulltime, gen_snake);
+	
+	//random numbers generator
+	srand(time(NULL));
+	vector_e = generate_eligibility(N);
+	eligibility_exp = gen_elig_exp(N);
+	sigma =  generate_vect_sigma(N);
+	if (gen_snake == 1)g = generate_vect_g(N,L); //slow cause of snake/////// Write snake's file
+	else if (gen_snake == 0) g = vector_g_from_file(N,L); //quick
+	else if (gen_snake == 2) g = generate_random_g(N,L);
+	else {printf("wrong 'gen_snake' value"); getchar();exit(-1);}
+
+	FILE* myfile;
+         myfile = fopen("out.txt","w");
+         if(myfile == NULL)
+         {
+               puts("cannot open file");
+			   getchar();
+               exit(-10) ;
+         }
+
+	for (timestep = 0; timestep < fulltime; timestep++)
+	{
+		
+		if (LianaCellFiringFunction(alpha(timestep,a_amp,a_period), Purkinje, Liana_buf) == true) CSpikeTime = 0;
+		eligibility(g, vector_e, eligibility_exp, timestep, N, L);
+		changing_weights(sigma, vector_e, CSpikeTime, N, L, epsilon);
+				
+		//calculating of Purkinje output
+		double scalar_Purkinje_presynap = 0;
+		for (int k = 0; k < N; k++)
+		{
+			scalar_Purkinje_presynap = scalar_Purkinje_presynap + sigma[k]*g[timestep%L][k];
+		}
+
+		//Purkinje = Purkinje*exp(-1/T_p)+scalar_Purkinje_presynap;
+		Purkinje = Purkinje*0.8+scalar_Purkinje_presynap;
+		if (timestep > (fulltime - 10000)) fprintf(myfile, "%d %f %f %f %f %f\n",
+			timestep, sigma[0], sigma[3], Liana_buf, Purkinje, alpha(timestep, a_amp, a_period));
+		CSpikeTime++;
+	}
+
+	fclose(myfile);
+	for (int i = 0; i<L; i++) free(g[i]);
+	free(g);
+	free(vector_e);
+	free(eligibility_exp[1]);free(eligibility_exp[0]);free(eligibility_exp);
+	free(sigma);
+
+	return 0;
+}
+
+
+
+
+bool Purkinje::GenRandomOptimizedG_i()//double** generate_random_g(int N, int L)
+{
+	unsigned int NumberOfUnits;
+	//FILE* myfile_snake;
+	//myfile_snake = fopen("snake","w");
+	//if(myfile_snake == NULL){puts("cannot open file"); exit(-10); return false;}
+
+	g_zipped = (unsigned int **) calloc (NumberOfUnits,sizeof(unsigned int*));
+	if (g_zipped == NULL) {puts("HELLO: memory allocation error"); exit(-1);return false;}
+
+	for (int i = 0; i < NumberOfUnits; i++)
+	{
+		g_zipped[i] = (unsigned int*) calloc (2,sizeof(unsigned int));
+		if (g_zipped[i] == NULL) {puts("HELLO: memory allocation error"); exit(-1);return false;}
+		for (int m = 0; m<N; m++)
+		{
+			if (0.7<((double)rand()/RAND_MAX)) {g_zipped[i][0] = p; g_zipped[i][1] = k; break;}
+			//fprintf(myfile_snake, "%f\n",vector_g[i][k]);
+		}
+
+	}
+	printf("optimized vector_g has been generated\n");
+	//fclose(myfile_snake);
+	//return vector_g;
+}
+//////////////////
+	
+std::vector<std::vector <unsigned int>> vect;
+double **vector_g;
+int N = 5;
+vector_g = (double**)malloc(N*sizeof(double*));
+if (vector_g == NULL) {printf("HELLO: memory allocation error\n"); exit(-1);}
+for (int i=0; i<N; i++)
+{
+	vector_g[i] = (double*)malloc(N*sizeof(double));
+	if (vector_g[i] == NULL) {printf("HELLO: memory allocation error\n"); exit(-1);}
+	for(int k = 0; k<N; k++)
+	{
+		if (i>=k) vector_g[i][k] = 1;//(0.7<((double)rand()/RAND_MAX)) vector_g[i][k] = 1;
+		else vector_g[i][k] = 0;
+	}	
+}
+
+//double g[5][5];
+//for (int i = 0; i<5;i++)
+//for(int j =0; j<5;j++)
+//if (i<j) g[i][j] = 0;
+//else g[i][j] = 1;
+vect = ConvertG2Optimized(vector_g, N, N);
+for(std::vector<std::vector<unsigned int>>::iterator it = vect.begin(); it!=vect.end();++it)
+{for (std::vector<unsigned int>::iterator it2 = (*it).begin(); it2!=(*it).end();++it2)
+std::cout<<*it2<<" ";
+std::cout<<std::endl;}
+
+
+
+
+//CMemoryWatcherDlg::~CMemoryWatcherDlg()
+//{
+////	KillTimer(1);
+////	CloseHandle(h);
+//	//if(img!=NULL) delete img;
+//	if (purk!=NULL) delete purk;	// „…„t„p„|„y„„„Ž „t„y„~„p„}„y„‰„u„ƒ„{„y„z „€„q„Œ„u„{„„
+//}
+//void CMemoryWatcherDlg::OnTimer(UINT_PTR nIDEvent)
+//{
+//
+//
+//	if (nIDEvent == 1)
+//	{
+//		if (!h)
+//		{
+//			if (m_ProcessID)
+//				h = OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, FALSE, m_ProcessID);
+//			else
+//				h = GetCurrentProcess();
+//			if (!h)
+//				return;
+//		}
+//		PROCESS_MEMORY_COUNTERS pmc;
+//		if (GetProcessMemoryInfo(h, &pmc, sizeof(pmc)))
+//		{
+//			points.push(pmc.WorkingSetSize);
+//			points_pagefile.push(pmc.PagefileUsage);
+//			for (int mytimevar = 0; mytimevar<10; mytimevar++) 
+//			{
+//				purk->timestep++;
+//				purk->StepForward();
+//			}
+//
+//			points_mauk.push(purk->PurkinjeFreqPublic);
+//			//points_mauk.push(pmc.PagefileUsage);
+//			peak = pmc.PeakWorkingSetSize;
+//			peak_pagefile = pmc.PeakPagefileUsage;
+//		}
+//		else
+//		{
+//			points.push(0);
+//			points_pagefile.push(0);
+//			points_mauk.push(0);
+//		}
+//		if (points.size() > m_NumSteps + 1)
+//		{
+//			points.pop();
+//			points_pagefile.pop();
+//			points_mauk.pop();
+//		}
+//		SIZE_T l, total;
+//		CDC * idc = CDC::FromHandle(img->GetDC());
+//		CPen pen, * oldpen, * oldpen2, pen2, pen3;
+//		CString s;
+//		// setting pen color
+//		pen.CreatePen(PS_SOLID, 3, RGB(0, 200, 0));
+//		oldpen = idc->SelectObject(&pen);
+//		double dx = double(img->GetWidth()) / (m_NumSteps - 1), dy = double(img->GetHeight()) / (m_MaxMem - 1);
+//		int x, y;
+//		// clearing image
+//		idc->FillSolidRect(-1, -1, img->GetWidth() + 2, img->GetHeight() + 2, RGB(0, 0, 0));
+//		// drawing grid
+//		pen2.CreatePen(PS_SOLID, 1, RGB(150, 150, 150));
+//		oldpen2 = idc->SelectObject(&pen2);
+//		for (UINT i = 0; i < points.size(); i++)
+//		{
+//			x = int(i * dx);
+//			idc->MoveTo(x, 0);
+//			idc->LineTo(x, img->GetHeight());
+//		}
+//		for (double i = 0.0; i < img->GetHeight(); i += img->GetHeight() / 10.0)
+//		{
+//			idc->MoveTo(0, int(i));
+//			idc->LineTo(img->GetWidth(), int(i));
+//		}
+//		idc->SelectObject(oldpen2);
+//		// setting text color
+//		idc->SetTextColor(RGB(0, 200, 0));
+//		// drawing points
+//		for (UINT i = 0; i < points.size(); i++)
+//		{
+//			l = points._Get_container()[i];
+//			x = int(i * dx);
+//			y = img->GetHeight() - int(l * dy) - 1;
+//			if (!i)
+//			{
+//				idc->MoveTo(x, y);
+//			}
+//			else
+//			{
+//				idc->LineTo(x, y);
+//			}
+//			if (i == points.size() - 1)
+//			{
+//				s.Format(L"Memory: %u KB of %u KB, peak %u KB", l / 1024, m_MaxMem / 1024, peak / 1024);
+//				idc->TextOutW(1, 1, s);
+//				total = l;
+//			}
+//		}
+//		// drawing points_pagefile
+//		// setting other pen color
+//		pen3.CreatePen(PS_SOLID, 3, RGB(200, 0, 0));
+//		oldpen2 = idc->SelectObject(&pen3);
+//		// setting text color
+//		idc->SetTextColor(RGB(200, 0, 0));
+//		//for (UINT i = 0; i < points_pagefile.size(); i++)
+//		for (UINT i = 0; i < points_mauk.size(); i++)
+//		{
+//			//l = points_pagefile._Get_container()[i];
+//			l = points_mauk._Get_container()[i];
+//			x = int(i * dx);
+//			y = img->GetHeight() - int(l * dy) - 1;
+//			if (!i)
+//			{
+//				idc->MoveTo(x, y);
+//			}
+//			else
+//			{
+//				idc->LineTo(x, y);
+//			}
+//			//if (i == points_pagefile.size() - 1)
+//			if (i == points_mauk.size() - 1)
+//			{
+//				s.Format(L"Swap: %u KB, peak %u KB", l / 1024, peak_pagefile / 1024);
+//				idc->TextOutW(1, 17, s);
+//				total += l;
+//			}
+//		}
+//		// setting text color
+//		idc->SetTextColor(RGB(200, 200, 0));
+//		s.Format(L"Total: %u KB, peak %u KB", total / 1024, (peak_pagefile + peak) / 1024);
+//		idc->TextOutW(1, 33, s);
+//		idc->SelectObject(oldpen2);
+//		idc->SelectObject(oldpen);
+//		img->ReleaseDC();
+//		// displaying image
+//		DrawImage();
+//		// saving to file
+//		f << l << L"\n";
+//	}
+//	CDialog::OnTimer(nIDEvent);
+//}
+
+
+
+	////old_version
+	//		if (LianaCellFiringFunction(alpha(timestep,a_amp,a_period), PurkinjeFreq, Liana_buf) == true) CSpikeTime = 0;
+	//	eligibility(g, vector_e, eligibility_exp, timestep, N, L);
+	//	changing_weights(sigma, vector_e, CSpikeTime, N, L, epsilon);
+	//			
+	//	//calculating of Purkinje output
+	//	double scalar_Purkinje_presynap = 0;
+	//	for (int k = 0; k < N; k++)
+	//	{
+	//		scalar_Purkinje_presynap = scalar_Purkinje_presynap + sigma[k]*g[timestep%L][k];
+	//	}
+
+	//	//PurkinjeFreq = PurkinjeFreq*exp(-1/T_p)+scalar_Purkinje_presynap;
+	//	PurkinjeFreq = PurkinjeFreq*0.8+scalar_Purkinje_presynap;
+	//	if (timestep > (fulltime - 10000)) fprintf(output_file, "%d %f %f %f %f %f\n",
+	//		timestep, sigma[0], sigma[3], Liana_buf, PurkinjeFreq, alpha(timestep, a_amp, a_period));
+	//	CSpikeTime++;
+	
+	
+	
+	//std::vector<std::vector <unsigned int>>  ConvertG2Optimized(double **g, int L, int N)
+//{
+//	unsigned int NumberOfUnits, MaxNumberOfUnits = 0;
+//	for(int i = 0;i<L;i++)
+//	{
+//			NumberOfUnits = 0;
+//		for(int j = 0;j<N;j++)
+//			NumberOfUnits += g[i][j];
+//		if (MaxNumberOfUnits<NumberOfUnits) MaxNumberOfUnits = NumberOfUnits;
+//	}
+//	std::vector<std::vector <unsigned int>> g_optimized;
+//	g_optimized.resize(L);
+//	for (unsigned int t = 0; t < g_optimized.size(); t++)
+//	{
+//		g_optimized[t] .reserve(MaxNumberOfUnits);
+//		for (int k = 0; k < N; k++)
+//		{
+//			if (g[t][k]  == 1) g_optimized[t].push_back(k);
+//		}
+//	}
+//	return g_optimized;
+//}
+
+/*int read_settings_file(int &N, int &L, double &a_amp, double &a_period, int &fulltime, 
+					   int &gen_snake, double &epsilon, double &sigma_init, int &alpha_mode)
+{
+	FILE* myfile;
+         myfile = fopen("settings.txt","r");
+         if(myfile == NULL)
+		 {
+               puts("cannot open settings file"); getchar(); exit(-10);
+         }
+		 char buffer_string[20];
+		 fscanf(myfile, "%s", buffer_string);
+		 printf("reading %s\n", buffer_string);
+		 fscanf(myfile, "%d",&N);
+ 		 fscanf(myfile, "%s", buffer_string);
+		 printf("reading %s\n", buffer_string);
+		 fscanf(myfile, "%d",&L);
+		 fscanf(myfile, "%s", buffer_string);
+		 printf("reading %s\n", buffer_string);
+		 fscanf(myfile, "%lf",&a_amp);
+		 fscanf(myfile, "%s", buffer_string);
+		 printf("reading %s\n", buffer_string);
+		 fscanf(myfile, "%lf",&a_period);
+		 fscanf(myfile, "%s", buffer_string);
+		 printf("reading %s\n", buffer_string);
+		 fscanf(myfile, "%d",&fulltime);
+		 fulltime = fulltime*1000;
+		 fscanf(myfile, "%s", buffer_string);
+		 printf("reading %s\n", buffer_string);
+		 fscanf(myfile, "%d",&gen_snake);
+		 fscanf(myfile, "%s", buffer_string);
+		 printf("reading %s\n", buffer_string);
+		 fscanf(myfile, "%lf",&epsilon);
+		 fscanf(myfile, "%s", buffer_string);
+		 printf("reading %s\n", buffer_string);
+		 fscanf(myfile, "%lf",&sigma_init);
+		 fscanf(myfile, "%s", buffer_string);
+		 printf("reading %s\n", buffer_string);
+		 fscanf(myfile, "%d",&alpha_mode);
+		 fclose(myfile);
+		 printf("loaded values -> %d %d %f %f %dsec %d %f %f %d\n",
+			 N,L,a_amp, a_period, fulltime/1000, gen_snake, epsilon, sigma_init, alpha_mode);
+
+	return 0;
+}*/
+
+bool LianaCellFiringFunction(double alpha_atm, double Purkinje, double& Liana_buf)
+{
+	double H = 300;
+	double Tl = 20;//msec, 20-100 msec
+	double beta = 1;
+	/// bH + a !!!!!!
+	//Liana_buf = Liana_buf*exp(-1/Tl) + alpha_atm + beta*Purkinje;
+	Liana_buf = Liana_buf*0.4*0 + alpha_atm + beta*Purkinje;
+	if (Liana_buf >= H) {Liana_buf = 0; return true;}
+	else if (Liana_buf < H) return false;
+	printf("AAAAAAAAAA!!!\n");
+	exit(-1);
+}
+
+//double alpha_old(int timestep,double a_amp, double a_period)
+//{
+//	double alpha_atm = 0;
+//	if ((timestep%(int)(500*a_period)) < (timestep%(int)(1000*a_period))) alpha_atm = 500*a_period - 
+//		(timestep%(int)(500*a_period));
+//	else if ((timestep%(int)(500*a_period)) == (timestep%(int)(1000*a_period))) alpha_atm = timestep%(int)(500*a_period);
+//	else {printf("Oo\n"); getchar(); exit(-1);}
+//	//alpha_atm in interval [0,2]+4 when a_period=2, a_amp = 2
+//	alpha_atm = alpha_atm/500/a_period*a_amp;
+//	return alpha_atm;
+//}
+
+
+bool Purkinje::StepForward()
+{
+	
+	//new_version
+				
+		if (LianaCellFiringFunctionOld(alpha(timestep,a_amp,a_period, alpha_mode, alpha_min), PurkinjeFreq, Liana_buf) == true) CSpikeTime = 0;
+		eligibility(g, vector_e/*, eligibility_exp*/, timestep, N, L);
+		changing_weights(sigma, vector_e, CSpikeTime, N, L, epsilon);
+		//calculating of Purkinje output
+		scalar_Purkinje_presynap = 0;
+		sigma_sum = 0;
+		for (int k = 0; k < N; k++)
+		{
+			scalar_Purkinje_presynap = scalar_Purkinje_presynap + sigma[k]*g[timestep%L][k];
+			sigma_sum = sigma_sum + sigma[k];
+		}
+
+		//Purkinje = Purkinje*exp(-1/T_p)+scalar_Purkinje_presynap;
+		PurkinjeFreq = PurkinjeFreq*k_purk+scalar_Purkinje_presynap;
+		PurkinjeFreqPublic = PurkinjeFreq;
+		Liana_Public = Liana_buf;
+		alpha_Public = alpha(timestep, a_amp, a_period, alpha_mode, alpha_min);
+		if (timestep<200000)fprintf(omyfile1, "%d %f %f %f %f %f\n",
+			timestep, sigma[0], sigma_sum, Liana_buf, PurkinjeFreq, alpha(timestep, a_amp, a_period, alpha_mode, alpha_min));
+		else if (timestep<400000)fprintf(omyfile2, "%d %f %f %f %f %f\n",
+			timestep, sigma[0], sigma_sum, Liana_buf, PurkinjeFreq, alpha(timestep, a_amp, a_period, alpha_mode, alpha_min));
+		else if (timestep<600000)fprintf(omyfile3, "%d %f %f %f %f %f\n",
+			timestep, sigma[0], sigma_sum, Liana_buf, PurkinjeFreq, alpha(timestep, a_amp, a_period, alpha_mode, alpha_min));
+		else if (timestep<800000)fprintf(omyfile4, "%d %f %f %f %f %f\n",
+			timestep, sigma[0], sigma_sum, Liana_buf, PurkinjeFreq, alpha(timestep, a_amp, a_period, alpha_mode, alpha_min));
+		else if (timestep<1000000)fprintf(omyfile5, "%d %f %f %f %f %f\n",
+			timestep, sigma[0], sigma_sum, Liana_buf, PurkinjeFreq, alpha(timestep, a_amp, a_period, alpha_mode, alpha_min));
+		//else {printf("\ntimestep is out of range\n"); getchar();exit(-1);}
+
+		CSpikeTime++;
+
+		return true;
+}
+bool LianaCellFiringFunctionOld(double alpha_atm, double Purkinje, double& Liana_buf);
+bool LianaCellFiringFunctionOld(double alpha_atm, double Purkinje, double& Liana_buf)
+{
+	double H = 300;
+	double Tl = 20;//msec, 20-100 msec k_liana -> 0.951-0.99
+	double beta = 1;
+	/// bH + a !!!!!!
+	//Liana_buf = Liana_buf*exp(-1/Tl) + alpha_atm + beta*Purkinje;
+	Liana_buf = Liana_buf*0.4*0 + alpha_atm + beta*Purkinje;
+	if (Liana_buf >= H) {Liana_buf = 0; return true;}
+	else if (Liana_buf < H) return false;
+	printf("AAAAAAAAAA!!!\n");
+	exit(-1);
+}
+double alpha(int timestep,double a_amp, double a_period, int mode, double alpha_min) 
+{
+	double alpha_atm = 0;
+	if ((timestep%(int)(500*a_period)) < (timestep%(int)(1000*a_period))) alpha_atm = 500*a_period - 
+		(timestep%(int)(500*a_period));
+	else if ((timestep%(int)(500*a_period)) == (timestep%(int)(1000*a_period))) alpha_atm = timestep%(int)(500*a_period);
+	else {printf("Oo\n"); getchar(); exit(-1);}
+	
+	//alpha_atm in interval [0,2]+4 when a_period=2, a_amp = 2
+	//alpha_atm = 50;//alpha_atm/500/a_period*a_amp+50;
+	if (mode == 0) alpha_atm = alpha_min; //0;//50;
+	else if (mode == 1) alpha_atm = alpha_atm/500/a_period*a_amp+alpha_min;//50;
+	else {printf("alpha error\n"); getchar();exit(-1);}
+	return alpha_atm;
+}

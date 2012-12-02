@@ -1,11 +1,15 @@
 // MemoryWatcherDlg.h : header file
 //
+//using MyProject.ë´ÇÃïsé©óRÇ»ÉnÉbÉLÉìÉO
+//ÑÑÑuÑ{ÑÉÑÑ Ñr ÑëÑÅÑÄÑ~ÑÉÑ{ÑÄÑz Ñ{ÑÄÑtÑyÑÇÑÄÑrÑ{Ñu
 
 #pragma once
 
 #include <psapi.h>
 #include <queue>
 #include "afxwin.h"
+
+#include "mauk.h"
 
 #include <fstream>
 #include <iostream>
@@ -19,6 +23,7 @@ class CMemoryWatcherDlg : public CDialog
 // Construction
 public:
 	CMemoryWatcherDlg(CWnd* pParent = NULL);	// standard constructor
+	//~CMemoryWatcherDlg(); //my destructor (is it rly ok?.. maybe don't need)
 
 // Dialog Data
 	enum { IDD = IDD_MEMORYWATCHER_DIALOG };
@@ -36,9 +41,12 @@ protected:
 	afx_msg HCURSOR OnQueryDragIcon();
 	DECLARE_MESSAGE_MAP()
 private:
+	Purkinje * purk;
 	CImage * img;
-	p_queue points;
-	p_queue points_pagefile;
+	p_queue points_mauk;
+	p_queue points_liana;
+//	p_queue points;
+//	p_queue points_pagefile;
 	DWORD m_ProcessID;
 	UINT m_TimeStep;
 	UINT m_NumSteps;
@@ -48,7 +56,7 @@ private:
 	int m_ImgWidth;
 	int m_ImgHeight;
 	bool running;
-	wofstream f;
+//	wofstream f;
 	SIZE_T peak;
 	SIZE_T peak_pagefile;
 public:
