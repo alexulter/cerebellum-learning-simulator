@@ -191,7 +191,27 @@ BEGIN
     PUSHBUTTON      "Select proc",IDC_BTN_SELECT,7,7,50,14
     PUSHBUTTON      "Settings",IDC_BTN_SETTINGS,63,7,50,14
     PUSHBUTTON      "Pause/Continue",IDC_BTN_PAUSE,119,7,59,14
+    CONTROL         "",IDC_MY_STATIC,"Static",SS_BLACKFRAME,7,30,410,306
 END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// DESIGNINFO
+//
+
+#ifdef APSTUDIO_INVOKED
+GUIDELINES DESIGNINFO 
+BEGIN
+    IDD_MEMORYWATCHER_DIALOG, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 417
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 336
+    END
+END
+#endif    // APSTUDIO_INVOKED
 
 
 /////////////////////////////////////////////////////////////////////////////
@@ -232,25 +252,6 @@ BEGIN
         VALUE "Translation", 0x409, 1252
     END
 END
-
-
-/////////////////////////////////////////////////////////////////////////////
-//
-// DESIGNINFO
-//
-
-#ifdef APSTUDIO_INVOKED
-GUIDELINES DESIGNINFO 
-BEGIN
-    IDD_MEMORYWATCHER_DIALOG, DIALOG
-    BEGIN
-        LEFTMARGIN, 7
-        RIGHTMARGIN, 417
-        TOPMARGIN, 7
-        BOTTOMMARGIN, 336
-    END
-END
-#endif    // APSTUDIO_INVOKED
 
 #endif    // English (U.S.) resources
 /////////////////////////////////////////////////////////////////////////////

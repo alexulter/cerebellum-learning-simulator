@@ -66,7 +66,7 @@ void CSelectProcessDlg::OnOK()
 	if (i != -1)
 	{
 		m_ProcessID = *(DWORD*)m_cmbProcesses.GetItemDataPtr(i);
-		m_cmbProcesses.GetWindowTextW(m_ProcessName);
+		//m_cmbProcesses.GetWindowTextW(m_ProcessName);
 	}
 	else
 	{
@@ -79,7 +79,7 @@ void CSelectProcessDlg::OnOK()
 void CSelectProcessDlg::OnCancel()
 {
 	m_ProcessID = 0;
-	m_ProcessName = CString(L"(none)");
+	//m_ProcessName = CString(L"(none)");
 	CDialog::OnCancel();
 }
 
@@ -88,10 +88,10 @@ DWORD CSelectProcessDlg::GetSelectedProcessID(void)
 	return m_ProcessID;
 }
 
-CString CSelectProcessDlg::GetSelectedProcessName(void)
-{
-	return m_ProcessName;
-}
+//CString CSelectProcessDlg::GetSelectedProcessName(void)
+//{
+//	return m_ProcessName;
+//}
 
 CString GetCurrentProcessName()
 {

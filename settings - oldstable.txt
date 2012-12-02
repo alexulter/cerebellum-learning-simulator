@@ -1,0 +1,9 @@
+N 3000
+L 1000
+a_amp 100
+a_period 1
+fulltime 200
+gen_snake 0
+epsilon 0.000001
+sigma_init 0.8
+alph_mod 1

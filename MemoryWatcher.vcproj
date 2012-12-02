@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="windows-1251"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="9,00"
-	Name="MemoryWatcher"
+	Version="9.00"
+	Name="mauk_win32"
 	ProjectGUID="{1ED43ACE-A839-462E-B8AE-E5B7DDC7F18B}"
-	RootNamespace="MemoryWatcher"
+	RootNamespace="mauk_win32"
 	Keyword="MFCProj"
 	TargetFrameworkVersion="196613"
 	>
@@ -45,11 +45,11 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				PreprocessorDefinitions="WIN32;_WINDOWS;_DEBUG"
+				PreprocessorDefinitions="WIN32;_WINDOWS;_DEBUG;_CRT_SECURE_NO_WARNINGS"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
-				UsePrecompiledHeader="2"
+				UsePrecompiledHeader="0"
 				WarningLevel="3"
 				DebugInformationFormat="4"
 			/>
@@ -188,6 +188,26 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
+				RelativePath=".\Cell.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\common_func.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\generate_read_g.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\InputVectorX.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\mauk_main.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\MemoryWatcher.cpp"
 				>
 			</File>
@@ -196,7 +216,19 @@
 				>
 			</File>
 			<File
+				RelativePath=".\MyCStatic.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\NeuralNetSettings.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\SelectProcessDlg.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\settings.txt"
 				>
 			</File>
 			<File
@@ -223,6 +255,14 @@
 					/>
 				</FileConfiguration>
 			</File>
+			<File
+				RelativePath=".\threads.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\trash"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
@@ -230,11 +270,31 @@
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
 			<File
+				RelativePath=".\Cell.h"
+				>
+			</File>
+			<File
+				RelativePath=".\InputVectorX.h"
+				>
+			</File>
+			<File
+				RelativePath=".\mauk.h"
+				>
+			</File>
+			<File
 				RelativePath=".\MemoryWatcher.h"
 				>
 			</File>
 			<File
 				RelativePath=".\MemoryWatcherDlg.h"
+				>
+			</File>
+			<File
+				RelativePath=".\MyCStatic.h"
+				>
+			</File>
+			<File
+				RelativePath=".\NeuralNetSettings.h"
 				>
 			</File>
 			<File
