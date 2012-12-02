@@ -208,6 +208,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\MyCStatic.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\SelectProcessDlg.cpp"
 				>
 			</File>
@@ -263,6 +267,10 @@
 			</File>
 			<File
 				RelativePath=".\MemoryWatcherDlg.h"
+				>
+			</File>
+			<File
+				RelativePath=".\MyCStatic.h"
 				>
 			</File>
 			<File

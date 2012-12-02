@@ -1,10 +1,10 @@
-N 18000
-L 6000
+N 3000
+L 1000
 a_amp 100
 alpha_min 50
-a_period 6
+a_period 1
 fulltime 600
-gen_snake 1
+gen_snake 0
 epsilon 0.000001
 H 300
 k_liana 0.4

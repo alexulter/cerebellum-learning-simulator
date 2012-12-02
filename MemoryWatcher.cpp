@@ -112,7 +112,7 @@ BOOL CMemoryWatcherApp::InitInstance()
 	// such as the name of your company or organization
 //	SetRegistryKey(_T("Local AppWizard-Generated Applications"));
 
-time_t tstart, tend;
+/*time_t tstart, tend;
 tstart = time(0);
 
 	Purkinje* purk = new Purkinje;
@@ -123,7 +123,7 @@ tend = time(0);
 cout << "It took " << difftime(tend, tstart) << " second(s)." << endl;
 Sleep(5000);
 //*/
-/*	CMemoryWatcherDlg dlg;
+	CMemoryWatcherDlg dlg;
 	m_pMainWnd = &dlg;
 	INT_PTR nResponse = dlg.DoModal();
 	if (nResponse == IDOK)

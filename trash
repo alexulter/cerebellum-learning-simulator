@@ -468,3 +468,134 @@ double alpha(int timestep,double a_amp, double a_period, int mode, double alpha_
 	else {printf("alpha error\n"); getchar();exit(-1);}
 	return alpha_atm;
 }
+
+//void CMemoryWatcherDlg::OnTimer(UINT_PTR nIDEvent)
+//{
+//
+////	if (nIDEvent == 1)
+////	{
+////			for (int step = 0; step<200; step++) 
+////			{
+////			//HANDLE hThread;
+////			//unsigned threadID;
+////			//hThread = (HANDLE)_beginthreadex( NULL, 0, &purk->ComputingThread, NULL, 0, &threadID );
+////			//WaitForSingleObject( hThread, INFINITE );
+////			//CloseHandle( hThread );
+//////			purk->StartThreadFunc();
+////
+/////*				for (int mytimevar = 0; mytimevar<50; mytimevar++) 
+////			{
+////				purk->timestep++;
+////				purk->StepForwardOptimized();
+////			}//*/
+////
+////			points_mauk.push(purk->PurkinjeFreqPublic/2);
+////			//points_liana.push(purk->PurkinjeFreqPublic+purk->alpha_Public-200);//400e+5-purk->alpha_Public);
+////			points_liana.push(purk->Liana_Public/2+10);
+////		if (points_mauk.size() > m_NumSteps + 1)
+////		{
+////			points_mauk.pop();
+////			points_liana.pop();
+////		}
+////		SIZE_T l, total;
+////		$CDC * idc = CDC::FromHandle(img->GetDC());
+////		CPen pen, * oldpen, * oldpen2, pen2, pen3;
+////		CString s;
+////		// setting pen color
+////		pen.CreatePen(PS_SOLID, 3, RGB(0, 200, 0));
+////		oldpen = idc->SelectObject(&pen);
+////		double dx = double(img->GetWidth()) / (m_NumSteps - 1), dy = double(img->GetHeight()) / (m_MaxMem - 1);
+////		int x, y;
+////		// clearing image
+////		idc->FillSolidRect(-1, -1, img->GetWidth() + 2, img->GetHeight() + 2, RGB(0, 0, 0));
+////		// drawing grid
+////		pen2.CreatePen(PS_SOLID, 1, RGB(150, 150, 150));
+////		oldpen2 = idc->SelectObject(&pen2);
+////		//for (UINT i = 0; i < points_mauk.size(); i++)
+////		//{
+////		//	x = int(i * dx);
+////		//	idc->MoveTo(x, 0);
+////		//	idc->LineTo(x, img->GetHeight());
+////		//}
+////		//for (double i = 0.0; i < img->GetHeight(); i += img->GetHeight() / 10.0)
+////		//{
+////		//	idc->MoveTo(0, int(i));
+////		//	idc->LineTo(img->GetWidth(), int(i));
+////		//}
+////		idc->SelectObject(oldpen2);
+////		// setting text color
+////		idc->SetTextColor(RGB(0, 200, 0));
+////		// drawing points_mauk
+////		for (UINT i = 0; i < points_mauk.size(); i++)
+////		{
+////			l = points_mauk._Get_container()[i];
+////			x = int(i * dx);
+////			y = img->GetHeight() - int(l * dy) - 1;
+////			if (!i)
+////			{
+////				//idc->MoveTo(x, y);
+////				idc->SetPixel(x,y, RGB(150,150,150));
+////			}
+////			else
+////			{
+////				//idc->LineTo(x, y);
+////				idc->SetPixel(x,y, RGB(150,150,150));
+////			}
+////			if (i == points_mauk.size() - 1)
+////			{
+////	//			s.Format(L"Purkinje frequency:  %u", l /100000);
+////				s.Format(L"time:  %d s", purk->timestep/1000);
+////				idc->TextOutW(1, 1, s);
+////				total = l;
+////			}
+////		}
+////		// drawing points_liana
+////		// setting other pen color
+////		pen3.CreatePen(PS_SOLID, 3, RGB(200, 0, 0));
+////		oldpen2 = idc->SelectObject(&pen3);
+////		// setting text color
+////		idc->SetTextColor(RGB(200, 0, 0));
+////		for (UINT i = 0; i < points_liana.size(); i++)
+////		{
+////			l = points_liana._Get_container()[i];
+////			x = int(i * dx);
+////			y = img->GetHeight() - int(l * dy) - 1;
+////			if (!i)
+////			{
+////				//idc->MoveTo(x, y);
+////				idc->SetPixel(x,y, RGB(200,0,0));
+////			}
+////			else
+////			{
+////				//idc->LineTo(x, y);
+////				idc->SetPixel(x,y, RGB(200,0,0));
+////			}
+////		}
+////		img->ReleaseDC();
+////		// displaying image
+////		DrawImage();
+////			}
+////	}
+//	CDialog::OnTimer(nIDEvent);
+//}
+//
+
+
+//void CMemoryWatcherDlg::DrawImage(void)
+//{
+//	if (!img)
+//	{
+//		CDC * dc = GetDC();
+//		CRect R;
+//		GetWindowRect(&R);
+//		dc->FillSolidRect(-1, -1, R.Width() + 2, R.Height() + 2, RGB(255, 255, 255));
+//		ReleaseDC(dc);
+//		return;
+//	}
+//	CDC * dc = GetDC(), * idc = CDC::FromHandle(img->GetDC());
+//	CRect R;
+//	m_btnSelect.GetWindowRect(&R);
+//	dc->BitBlt(10, R.Height() + 15, img->GetWidth(), img->GetHeight(), idc, 0, 0, SRCCOPY);
+//	ReleaseDC(dc);
+//	img->ReleaseDC();
+//}

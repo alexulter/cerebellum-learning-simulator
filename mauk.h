@@ -8,7 +8,6 @@
 #include <iostream>			/////std::cout std::endl std::wofstream
 //#include <fstream> /// std::wofstream T_equ;
 
-
 double distance(double* v1, double* v2, int length);
 int read_settings_file(int &N, int &L, double &a_amp, double &a_period, int &fulltime,
 					   int &gen_snake, double &epsilon, double &sigma_init, int &alpha_mode);
@@ -43,9 +42,13 @@ public:
 	////
 	bool SynapticWeightsStep();
 	~Purkinje();
-	int timestep;
+	UINT timestep;
 	double PurkinjeFreqPublic, Liana_Public, alpha_Public;
 	virtual VOID Purkinje::ComputingThread(UINT i);
+	int RunThread;
+	double *out_var_1;
+	double *out_var_2;
+	double *out_var_3;
 private:
 	double Alpha();
 	bool LianaCellFiringFunction();

@@ -26,13 +26,13 @@ private:
 	DWORD procs[1024];
 	int numprocs;
 	DWORD m_ProcessID;
-	CString m_ProcessName;
+	//CString m_ProcessName;
 protected:
 	virtual void OnOK();
 	virtual void OnCancel();
 public:
 	DWORD GetSelectedProcessID(void);
-	CString GetSelectedProcessName(void);
+	//CString GetSelectedProcessName(void);
 };
 
 CString GetCurrentProcessName();
